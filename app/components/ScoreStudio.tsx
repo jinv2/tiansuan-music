@@ -41,14 +41,18 @@ export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Pro
 
   const togglePlay = () => { if (wavesurfer.current) { wavesurfer.current.playPause(); setIsPlaying(!isPlaying); }};
 
-  // 初始化 OSMD
+  // 初始化 OSMD (已修复 TypeScript 报错)
   useEffect(() => {
     if (sheetRef.current && !osmdRef.current) {
       try {
         osmdRef.current = new OpenSheetMusicDisplay(sheetRef.current, {
           autoResize: true, backend: "svg", drawingParameters: "compacttight", darkMode: true,
         });
-        osmdRef.current.setOptions({ backgroundColor: "#09090b", defaultColorMusic: "#FFFFFF", defaultColorLabel: "#FFFFFF" });
+        // 【关键修复】移除了报错的 backgroundColor，保留音符颜色设置
+        osmdRef.current.setOptions({ 
+          defaultColorMusic: "#FFFFFF", 
+          defaultColorLabel: "#FFFFFF" 
+        });
       } catch (e) { console.error(e); }
     }
   }, []);
