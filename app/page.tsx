@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ScoreStudio from './components/ScoreStudio';
 import ApiKeyModal from './components/ApiKeyModal';
-import { Upload, Settings, Play, Square, Layers, Music, KeyRound } from 'lucide-react';
+import { Upload, Layers, Square, Music, KeyRound, Menu } from 'lucide-react';
 import useLocalStorageState from 'use-local-storage-state';
 
 export default function Home() {
@@ -15,7 +15,6 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setMounted(true), []);
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setAudioFile(e.target.files[0]);
   };
@@ -23,76 +22,101 @@ export default function Home() {
   if (!mounted) return <div className="h-screen w-full bg-[#1e1e1e]" />;
 
   return (
-    <main className="flex flex-col h-screen w-full bg-[#1e1e1e] text-[#ccc] overflow-hidden">
+    <main className="flex flex-col h-screen w-full bg-[#1e1e1e] text-[#e5e5e5] overflow-hidden">
       <ApiKeyModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} storedKey={apiKey} onSave={setApiKey} />
 
-      {/* Header */}
-      <header className="h-10 bg-[#2d2d2d] border-b border-[#333] flex items-center px-4 justify-between shrink-0 select-none">
-        <div className="flex items-center gap-6">
-          <div className="font-bold text-gray-100 flex items-center gap-2">
-            <div className="w-3 h-3 bg-[#007fd4]"></div> TIANSUAN <span className="text-[#007fd4] text-[10px]">DAW</span>
+      {/* 顶部栏 (增高至 h-14) */}
+      <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-6 justify-between shrink-0 select-none shadow-md z-40">
+        <div className="flex items-center gap-8">
+          <div className="font-bold text-lg text-white flex items-center gap-3 tracking-wide">
+            <div className="w-4 h-4 bg-blue-600 rounded"></div> 
+            TIANSUAN <span className="text-blue-500 font-normal">DAW</span>
+          </div>
+          {/* 模拟菜单 */}
+          <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
+            <span className="hover:text-white cursor-pointer">File</span>
+            <span className="hover:text-white cursor-pointer">Edit</span>
+            <span className="hover:text-white cursor-pointer">View</span>
+            <span className="hover:text-white cursor-pointer text-blue-400 font-medium">AI Tools</span>
           </div>
         </div>
+        
         <button 
           onClick={() => setIsSettingsOpen(true)}
-          className={`flex items-center gap-2 text-[10px] font-mono px-3 py-1 rounded transition-colors ${apiKey ? 'bg-[#1e1e1e] text-green-500 border border-green-900' : 'bg-red-900/20 text-red-500 border border-red-900'}`}
+          className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-full transition-all border ${apiKey ? 'bg-[#1e1e1e] text-green-500 border-green-800 hover:bg-green-900/20' : 'bg-red-900/10 text-red-500 border-red-800 animate-pulse'}`}
         >
-          <KeyRound size={12}/> {apiKey ? 'LINKED' : 'NO KEY'}
+          <KeyRound size={14}/> 
+          {apiKey ? 'DEEPSEEK: ONLINE' : 'CLICK TO CONNECT API'}
         </button>
       </header>
 
-      {/* Workspace */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel */}
-        <aside className="w-64 bg-[#252526] border-r border-[#333] flex flex-col shrink-0">
-          <div className="p-2 bg-[#2d2d2d] text-[11px] font-bold text-gray-400 border-b border-[#333]">INSPECTOR</div>
-          <div className="p-4 space-y-6">
+        {/* 左侧栏 (加宽至 w-72) */}
+        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30">
+          <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] tracking-wider flex justify-between items-center">
+            <span>INSPECTOR</span>
+            <Menu size={14} className="text-gray-500"/>
+          </div>
+          
+          <div className="p-5 space-y-8 overflow-y-auto">
+             {/* 音频输入模块 */}
              <div>
-               <h3 className="text-[10px] text-[#007fd4] font-bold mb-2 uppercase">Audio Input</h3>
+               <h3 className="text-xs text-blue-400 font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
+                 <Music size={14}/> Audio Source
+               </h3>
                <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
                <div 
                  onClick={() => fileInputRef.current?.click()}
-                 className={`h-24 border border-[#3e3e42] bg-[#1e1e1e] rounded flex flex-col items-center justify-center cursor-pointer hover:border-[#007fd4] transition-colors ${audioFile ? 'border-l-4 border-l-[#007fd4]' : ''}`}
+                 className={`h-32 border-2 border-dashed bg-[#1a1a1a] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group
+                 ${audioFile ? 'border-blue-500/50 bg-blue-900/10' : 'border-[#444] hover:border-blue-400 hover:bg-[#252526]'}`}
                >
                  {audioFile ? (
-                   <div className="text-center w-full px-2">
-                     <Music size={24} className="mx-auto mb-2 text-[#007fd4]"/>
-                     <div className="text-[10px] text-white truncate w-full">{audioFile.name}</div>
+                   <div className="text-center w-full px-4">
+                     <Music size={32} className="mx-auto mb-3 text-blue-500 drop-shadow-lg"/>
+                     <div className="text-sm font-medium text-white truncate w-full mb-1">{audioFile.name}</div>
+                     <span className="text-xs text-blue-300 bg-blue-900/30 px-2 py-0.5 rounded">Ready to Analyze</span>
                    </div>
                  ) : (
-                   <div className="text-center text-gray-500">
-                     <Upload size={20} className="mx-auto mb-2"/>
-                     <span className="text-[10px]">Import Media...</span>
+                   <div className="text-center text-gray-500 group-hover:text-gray-300">
+                     <Upload size={28} className="mx-auto mb-3"/>
+                     <span className="text-sm font-medium">Click to Import Audio</span>
                    </div>
                  )}
                </div>
              </div>
 
+             {/* 模式选择模块 */}
              <div>
-               <h3 className="text-[10px] text-[#007fd4] font-bold mb-2 uppercase">View Mode</h3>
-               <div className="flex flex-col gap-1">
-                 <button onClick={() => setFormat('staff')} className={`flex items-center px-3 py-2 rounded text-[11px] ${format === 'staff' ? 'bg-[#37373d] text-white border-l-2 border-[#007fd4]' : 'text-gray-400 hover:text-white'}`}>
-                   <Layers size={14} className="mr-2"/> Score Editor
+               <h3 className="text-xs text-blue-400 font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
+                 <Layers size={14}/> Output Format
+               </h3>
+               <div className="flex flex-col gap-2">
+                 <button 
+                   onClick={() => setFormat('staff')} 
+                   className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all ${format === 'staff' ? 'bg-[#37373d] text-white border-l-4 border-blue-500 shadow-md' : 'text-gray-400 hover:bg-[#2a2a2b] hover:text-white'}`}
+                 >
+                   <Layers size={18} className="mr-3"/> Orchestral Score
                  </button>
-                 <button onClick={() => setFormat('jianpu')} className={`flex items-center px-3 py-2 rounded text-[11px] ${format === 'jianpu' ? 'bg-[#37373d] text-white border-l-2 border-purple-500' : 'text-gray-400 hover:text-white'}`}>
-                   <Square size={14} className="mr-2"/> Jianpu Grid
+                 <button 
+                   onClick={() => setFormat('jianpu')} 
+                   className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all ${format === 'jianpu' ? 'bg-[#37373d] text-white border-l-4 border-purple-500 shadow-md' : 'text-gray-400 hover:bg-[#2a2a2b] hover:text-white'}`}
+                 >
+                   <Square size={18} className="mr-3"/> Jianpu / Numeric
                  </button>
                </div>
              </div>
           </div>
+          
+          <div className="mt-auto p-4 border-t border-[#333] text-[10px] text-gray-500 text-center">
+            TIANSUAN ENGINE v3.4<br/>Powered by DeepSeek V3
+          </div>
         </aside>
 
-        {/* Main Editor */}
-        <section className="flex-1 bg-[#1e1e1e] relative overflow-hidden flex flex-col">
+        {/* 主编辑区 */}
+        <section className="flex-1 bg-[#181818] relative overflow-hidden flex flex-col">
           <ScoreStudio format={format} audioFile={audioFile} apiKey={apiKey} />
         </section>
       </div>
-
-      {/* Footer */}
-      <footer className="h-8 bg-[#007fd4] flex items-center justify-between px-4 text-[10px] text-white font-bold shrink-0">
-        <div>READY</div>
-        <div className="font-mono">44.1 kHz | 16 bit</div>
-      </footer>
     </main>
   );
 }
