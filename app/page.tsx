@@ -28,21 +28,34 @@ export default function Home() {
       {/* 顶部 Header */}
       <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-4 justify-between shrink-0 shadow-md z-40 flex-none">
         
-        {/* 左侧品牌区：Logo + 文字 */}
-        <div className="flex items-center gap-4">
-          {/* Logo 图片：圆角矩形，带边框 */}
+        {/* 左侧品牌区 */}
+        <div className="flex items-center gap-3">
+          {/* 关键修复：
+             1. width={32} height={32}: HTML 属性强制
+             2. style={{...}}: 内联样式最高优先级强制
+             3. objectFit: cover: 防止图片变形
+          */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/logo.jpg" 
-            alt="TianSuan Logo" 
-            className="w-8 h-8 rounded-md object-cover border border-[#555] shadow-sm hover:scale-110 transition-transform"
+            alt="Logo" 
+            width="32"
+            height="32"
+            style={{ 
+              width: '32px', 
+              height: '32px', 
+              minWidth: '32px', 
+              maxWidth: '32px',
+              objectFit: 'cover',
+              borderRadius: '6px'
+            }}
+            className="border border-[#555] shadow-sm"
           />
           
           <div className="font-bold text-lg text-white tracking-wide flex items-baseline gap-1">
             TIANSUAN <span className="text-blue-500 font-normal text-sm">DAW</span>
           </div>
 
-          {/* 模拟菜单栏 (桌面端显示) */}
           <div className="hidden md:flex items-center gap-4 ml-6 text-xs text-gray-400 font-medium">
             <span className="hover:text-white cursor-pointer px-2 py-1 rounded hover:bg-[#333]">File</span>
             <span className="hover:text-white cursor-pointer px-2 py-1 rounded hover:bg-[#333]">Edit</span>
@@ -58,8 +71,6 @@ export default function Home() {
 
       {/* 主体区域 */}
       <div className="flex-1 flex overflow-hidden min-h-0 relative">
-        
-        {/* 侧边栏 */}
         <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
           <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] flex justify-between items-center shrink-0">
             <span>INSPECTOR</span><Menu size={14}/>
@@ -95,12 +106,11 @@ export default function Home() {
           </div>
           
           <div className="p-4 pb-10 border-t border-[#333] shrink-0 bg-[#202021]">
-             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.1</div>
+             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.2</div>
              <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
           </div>
         </aside>
 
-        {/* 右侧工作区 (干净的深色背景，无水印干扰) */}
         <section className="flex-1 bg-[#181818] relative overflow-hidden flex flex-col">
           <ScoreStudio format={format} audioFile={audioFile} apiKey={apiKey} />
         </section>
