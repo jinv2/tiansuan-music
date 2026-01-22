@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-white text-zinc-950 antialiased;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
-  }
+/* 基础样式 - 使用标准 CSS 替代 @apply 以避免构建错误 */
+body {
+  background-color: white;
+  color: #09090b; /* zinc-950 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 简谱专用样式 */
@@ -34,7 +35,7 @@
   letter-spacing: 0.2em;
 }
 
-/* 现代 AI 动效 */
+/* 动效定义 */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }

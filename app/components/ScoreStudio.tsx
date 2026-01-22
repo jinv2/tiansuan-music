@@ -2,13 +2,13 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
-import { Play, Download, Loader2, Music4, Wand2, FileMusic } from 'lucide-react';
+import { Play, Download, Loader2, Music, Wand2, FileMusic } from 'lucide-react';
 
 interface ScoreStudioProps {
-  format: string; // 'staff' | 'jianpu'
+  format?: string;
 }
 
-export default function ScoreStudio({ format }: ScoreStudioProps) {
+export default function ScoreStudio({ format = 'staff' }: ScoreStudioProps) {
   const [status, setStatus] = useState<'idle' | 'processing' | 'ready'>('idle');
   const sheetRef = useRef<HTMLDivElement>(null);
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null);
@@ -31,23 +31,23 @@ export default function ScoreStudio({ format }: ScoreStudioProps) {
   const startGeneration = async () => {
     setStatus('processing');
     
-    // 模拟天算 AI 的计算过程 (1.5秒)
     setTimeout(async () => {
       if (format === 'staff' && osmdRef.current) {
-        // 五线谱数据 (欢乐颂)
-        const sampleXML = \`<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>AI Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>4</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure><measure number="2"><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure></part></score-partwise>\`;
-        await osmdRef.current.load(sampleXML);
-        osmdRef.current.render();
+        // 修复点：这里是纯净的字符串，没有反斜杠
+        const sampleXML = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>AI Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>4</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure><measure number="2"><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure></part></score-partwise>`;
+        
+        try {
+          await osmdRef.current.load(sampleXML);
+          osmdRef.current.render();
+        } catch (e) { console.error(e); }
       }
-      // 简谱模式不需要 XML，直接渲染 React 组件
       setStatus('ready');
     }, 1500);
   };
 
-  // 重置画布 (当格式切换时)
   useEffect(() => {
     if (status === 'ready') {
-      startGeneration(); // 重新渲染以适应新格式
+      startGeneration();
     }
   }, [format]);
 
@@ -122,7 +122,6 @@ export default function ScoreStudio({ format }: ScoreStudioProps) {
             <p className="text-sm text-zinc-500 mb-12 font-serif">1=C 4/4 AI Transcription</p>
             
             <div className="flex flex-wrap gap-12 text-3xl font-serif leading-loose w-full max-w-3xl justify-center">
-              {/* 第一小节: 3 3 4 5 */}
               <div className="flex gap-6 border-b border-zinc-100 pb-2">
                 <span className="jianpu-note">3</span>
                 <span className="jianpu-note">3</span>
@@ -130,8 +129,6 @@ export default function ScoreStudio({ format }: ScoreStudioProps) {
                 <span className="jianpu-note">5</span>
                 <span className="ml-4 text-zinc-300">|</span>
               </div>
-              
-              {/* 第二小节: 5 4 3 2 */}
               <div className="flex gap-6 border-b border-zinc-100 pb-2">
                 <span className="jianpu-note">5</span>
                 <span className="jianpu-note">4</span>
@@ -139,8 +136,6 @@ export default function ScoreStudio({ format }: ScoreStudioProps) {
                 <span className="jianpu-note">2</span>
                 <span className="ml-4 text-zinc-300">|</span>
               </div>
-
-              {/* 第三小节: 1 1 2 3 */}
               <div className="flex gap-6 border-b border-zinc-100 pb-2">
                 <span className="jianpu-note">1</span>
                 <span className="jianpu-note">1</span>
@@ -148,8 +143,6 @@ export default function ScoreStudio({ format }: ScoreStudioProps) {
                 <span className="jianpu-note">3</span>
                 <span className="ml-4 text-zinc-300">|</span>
               </div>
-
-              {/* 第四小节: 3. 2_ 2 - */}
               <div className="flex gap-6 border-b border-zinc-100 pb-2">
                  <span className="jianpu-note">3<span className="text-xs absolute -right-2 top-2">.</span></span>
                  <span className="jianpu-note">2<span className="jianpu-underline"></span></span>
