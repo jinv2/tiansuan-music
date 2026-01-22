@@ -30,27 +30,25 @@ export default function Home() {
         
         {/* 左侧品牌区 */}
         <div className="flex items-center gap-3">
-          {/* 关键修复：
-             1. width={32} height={32}: HTML 属性强制
-             2. style={{...}}: 内联样式最高优先级强制
-             3. objectFit: cover: 防止图片变形
+          
+          {/* 【v4.3 核心修复】Logo 隔离舱 */}
+          {/* 我们不再直接控制 img，而是控制外层的 div。
+              w-[32px] h-[32px]: 强制 div 尺寸
+              overflow-hidden: 超出部分直接切掉
+              rounded-md: 给白色背景裁个圆角，看起来像 App 图标
           */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src="/logo.jpg" 
-            alt="Logo" 
-            width="32"
-            height="32"
-            style={{ 
-              width: '32px', 
-              height: '32px', 
-              minWidth: '32px', 
-              maxWidth: '32px',
-              objectFit: 'cover',
-              borderRadius: '6px'
-            }}
-            className="border border-[#555] shadow-sm"
-          />
+          <div className="w-[32px] h-[32px] min-w-[32px] min-h-[32px] rounded-md overflow-hidden border border-[#555] shadow-sm bg-white flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/logo.jpg" 
+              alt="Logo" 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'contain' // 确保图片完整显示在盒子里，不变形
+              }}
+            />
+          </div>
           
           <div className="font-bold text-lg text-white tracking-wide flex items-baseline gap-1">
             TIANSUAN <span className="text-blue-500 font-normal text-sm">DAW</span>
@@ -106,7 +104,7 @@ export default function Home() {
           </div>
           
           <div className="p-4 pb-10 border-t border-[#333] shrink-0 bg-[#202021]">
-             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.2</div>
+             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.3</div>
              <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
           </div>
         </aside>
