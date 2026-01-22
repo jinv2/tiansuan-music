@@ -13,10 +13,12 @@
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.562.0",
     "next": "16.1.4",
+    "openai": "^6.16.0",
     "opensheetmusicdisplay": "^1.9.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.4.0",
+    "use-local-storage-state": "^19.5.0",
     "wavesurfer.js": "^7.12.1"
   },
   "devDependencies": {
