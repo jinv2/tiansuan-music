@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
-import { Play, Pause, Download, Loader2, Wand2, FileMusic, Waves } from 'lucide-react';
+import { Play, Pause, Download, Loader2, Wand2, FileMusic } from 'lucide-react';
 
 interface ScoreStudioProps {
   format?: string;
@@ -18,24 +18,22 @@ export default function ScoreStudio({ format = 'staff', audioFile }: ScoreStudio
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null);
   const wavesurfer = useRef<any>(null);
 
-  // 1. 初始化 WaveSurfer (Plan B 核心)
+  // 1. 初始化 WaveSurfer
   useEffect(() => {
-    // 动态导入 wavesurfer 以避免 SSR 错误
     const initWaveSurfer = async () => {
       if (!waveformRef.current || !audioFile) return;
 
+      // 动态导入以避免 SSR 问题
       const WaveSurfer = (await import('wavesurfer.js')).default;
       
-      // 销毁旧实例
       if (wavesurfer.current) {
         wavesurfer.current.destroy();
       }
 
-      // 创建新实例
       wavesurfer.current = WaveSurfer.create({
         container: waveformRef.current,
-        waveColor: '#d4d4d8', // zinc-300
-        progressColor: '#18181b', // zinc-900
+        waveColor: '#d4d4d8', 
+        progressColor: '#18181b',
         cursorColor: '#ef4444',
         barWidth: 2,
         barGap: 3,
@@ -43,7 +41,6 @@ export default function ScoreStudio({ format = 'staff', audioFile }: ScoreStudio
         normalize: true,
       });
 
-      // 加载文件
       const url = URL.createObjectURL(audioFile);
       wavesurfer.current.load(url);
       
@@ -65,7 +62,7 @@ export default function ScoreStudio({ format = 'staff', audioFile }: ScoreStudio
     }
   };
 
-  // 3. 乐谱渲染 (保持不变)
+  // 3. 乐谱渲染
   useEffect(() => {
     if (sheetRef.current && !osmdRef.current && format === 'staff') {
       try {
@@ -80,14 +77,15 @@ export default function ScoreStudio({ format = 'staff', audioFile }: ScoreStudio
     setStatus('processing');
     setTimeout(async () => {
       if (format === 'staff' && osmdRef.current) {
-        const sampleXML = \`<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>AI Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>4</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure><measure number="2"><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure></part></score-partwise>\`;
+        // 【关键修复】这里使用了正确的反引号，没有反斜杠
+        const sampleXML = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd"><score-partwise version="3.1"><part-list><score-part id="P1"><part-name>AI Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>4</divisions><key><fifths>0</fifths></key><time><beats>4</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure><measure number="2"><note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note><note><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><type>quarter</type></note></measure></part></score-partwise>`;
+        
         try { await osmdRef.current.load(sampleXML); osmdRef.current.render(); } catch (e) { console.error(e); }
       }
       setStatus('ready');
     }, 1500);
   };
   
-  // 格式切换重新渲染
   useEffect(() => { if (status === 'ready') startGeneration(); }, [format]);
 
   return (
@@ -114,7 +112,7 @@ export default function ScoreStudio({ format = 'staff', audioFile }: ScoreStudio
         </div>
       </div>
 
-      {/* 波形播放器 (Plan B 新增区域) */}
+      {/* 波形播放器 (Plan B 核心) */}
       <div className={`px-8 transition-all duration-500 overflow-hidden ${audioFile ? 'h-24 opacity-100 mb-4' : 'h-0 opacity-0'}`}>
         <div className="bg-white border border-zinc-200 rounded-xl p-3 flex items-center gap-4 shadow-sm">
           <button onClick={togglePlay} className="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center hover:bg-black transition shrink-0">
