@@ -22,9 +22,10 @@ export default function Home() {
   if (!mounted) return <div className="h-screen w-full bg-[#1e1e1e]" />;
 
   return (
-    <main className="flex flex-col h-[100dvh] w-full bg-[#1e1e1e] text-[#e5e5e5] overflow-hidden select-none">
+    <main className="flex flex-col h-[100dvh] w-full bg-[#1e1e1e] text-[#e5e5e5] overflow-hidden select-none font-sans">
       <ApiKeyModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} storedKey={apiKey} onSave={setApiKey} />
 
+      {/* 顶部 Header */}
       <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-6 justify-between shrink-0 shadow-md z-40 flex-none">
         <div className="flex items-center gap-8">
           <div className="font-bold text-lg text-white flex items-center gap-3 tracking-wide">
@@ -37,11 +38,15 @@ export default function Home() {
         </button>
       </header>
 
+      {/* 主体区域 */}
       <div className="flex-1 flex overflow-hidden min-h-0 relative">
-        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full">
+        
+        {/* 侧边栏 */}
+        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full shadow-[4px_0_24px_rgba(0,0,0,0.4)]">
           <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] flex justify-between items-center shrink-0">
             <span>INSPECTOR</span><Menu size={14}/>
           </div>
+          
           <div className="p-5 flex-1 overflow-y-auto min-h-0 space-y-8">
              <div>
                <h3 className="text-xs text-blue-400 font-bold mb-3 uppercase flex items-center gap-2"><Music size={14}/> Audio Source</h3>
@@ -57,6 +62,7 @@ export default function Home() {
                  )}
                </div>
              </div>
+
              <div>
                <h3 className="text-xs text-blue-400 font-bold mb-3 uppercase flex items-center gap-2"><Layers size={14}/> Output Format</h3>
                <div className="flex flex-col gap-2">
@@ -69,27 +75,31 @@ export default function Home() {
                </div>
              </div>
           </div>
+          
           <div className="p-4 pb-10 border-t border-[#333] shrink-0 bg-[#202021]">
-             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v3.9</div>
+             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.0</div>
              <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
           </div>
         </aside>
 
-        <section className="flex-1 bg-[#181818] relative overflow-hidden flex flex-col justify-center items-center">
-          {/* Logo 背景水印层 */}
+        {/* 右侧工作区 (包含 Logo 和 编辑器) */}
+        <section className="flex-1 bg-[#181818] relative overflow-hidden flex flex-col">
+          
+          {/* Layer 0: 背景 Logo (绝对居中 + 模糊处理) */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
              {/* eslint-disable-next-line @next/next/no-img-element */}
              <img 
                src="/logo.jpg" 
-               alt="Studio Logo" 
-               className="w-[400px] h-[400px] object-contain opacity-5 grayscale brightness-150"
+               alt="Background Watermark" 
+               className="w-[500px] h-[500px] object-contain opacity-[0.06] blur-[3px] grayscale contrast-125"
              />
           </div>
 
-          {/* 乐谱工作台 (z-index 确保在 Logo 之上) */}
-          <div className="relative z-10 w-full h-full flex flex-col">
+          {/* Layer 1: 编辑器内容 (位于 Logo 之上) */}
+          <div className="relative z-10 flex-1 flex flex-col w-full h-full">
             <ScoreStudio format={format} audioFile={audioFile} apiKey={apiKey} />
           </div>
+
         </section>
       </div>
     </main>
