@@ -38,13 +38,14 @@ export default function Home() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* 侧边栏 */}
-        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30">
-          <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] flex justify-between items-center">
+        {/* 侧边栏：使用 flex flex-col 布局 */}
+        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full">
+          <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] flex justify-between items-center shrink-0">
             <span>INSPECTOR</span><Menu size={14}/>
           </div>
           
-          <div className="p-5 space-y-8 overflow-y-auto">
+          {/* 内容区域：flex-1 让它占据剩余空间 */}
+          <div className="p-5 flex-1 overflow-y-auto space-y-8">
              <div>
                <h3 className="text-xs text-blue-400 font-bold mb-3 uppercase flex items-center gap-2"><Music size={14}/> Audio Source</h3>
                <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
@@ -71,12 +72,12 @@ export default function Home() {
                  </button>
                </div>
              </div>
-
-             {/* 这里是您要求的修改：将底部文字大幅上移，不再沉底 */}
-             <div className="pt-8 pb-4 border-t border-[#333] mt-4">
-                <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v3.4</div>
-                <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
-             </div>
+          </div>
+          
+          {/* 底部版权：这里不需要 mt-auto，因为父容器是 flex-col 且中间层是 flex-1，这里自然会被挤到底部 */}
+          <div className="p-4 border-t border-[#333] shrink-0 bg-[#202021]">
+             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v3.4</div>
+             <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
           </div>
         </aside>
 
