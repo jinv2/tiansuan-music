@@ -26,14 +26,32 @@ export default function Home() {
       <ApiKeyModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} storedKey={apiKey} onSave={setApiKey} />
 
       {/* 顶部 Header */}
-      <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-6 justify-between shrink-0 shadow-md z-40 flex-none">
-        <div className="flex items-center gap-8">
-          <div className="font-bold text-lg text-white flex items-center gap-3 tracking-wide">
-            <div className="w-4 h-4 bg-blue-600 rounded"></div> 
-            TIANSUAN <span className="text-blue-500 font-normal">DAW</span>
+      <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-4 justify-between shrink-0 shadow-md z-40 flex-none">
+        
+        {/* 左侧品牌区：Logo + 文字 */}
+        <div className="flex items-center gap-4">
+          {/* Logo 图片：圆角矩形，带边框 */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src="/logo.jpg" 
+            alt="TianSuan Logo" 
+            className="w-8 h-8 rounded-md object-cover border border-[#555] shadow-sm hover:scale-110 transition-transform"
+          />
+          
+          <div className="font-bold text-lg text-white tracking-wide flex items-baseline gap-1">
+            TIANSUAN <span className="text-blue-500 font-normal text-sm">DAW</span>
+          </div>
+
+          {/* 模拟菜单栏 (桌面端显示) */}
+          <div className="hidden md:flex items-center gap-4 ml-6 text-xs text-gray-400 font-medium">
+            <span className="hover:text-white cursor-pointer px-2 py-1 rounded hover:bg-[#333]">File</span>
+            <span className="hover:text-white cursor-pointer px-2 py-1 rounded hover:bg-[#333]">Edit</span>
+            <span className="hover:text-white cursor-pointer px-2 py-1 rounded hover:bg-[#333]">View</span>
           </div>
         </div>
-        <button onClick={() => setIsSettingsOpen(true)} className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-full border ${apiKey ? 'bg-[#1e1e1e] text-green-500 border-green-800' : 'bg-red-900/10 text-red-500 border-red-800 animate-pulse'}`}>
+
+        {/* 右侧 API 状态 */}
+        <button onClick={() => setIsSettingsOpen(true)} className={`flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-full border transition-all ${apiKey ? 'bg-[#1e1e1e] text-green-500 border-green-800 hover:bg-green-900/20' : 'bg-red-900/10 text-red-500 border-red-800 animate-pulse'}`}>
           <KeyRound size={14}/> {apiKey ? 'ONLINE' : 'CONNECT API'}
         </button>
       </header>
@@ -42,7 +60,7 @@ export default function Home() {
       <div className="flex-1 flex overflow-hidden min-h-0 relative">
         
         {/* 侧边栏 */}
-        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full shadow-[4px_0_24px_rgba(0,0,0,0.4)]">
+        <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full shadow-[4px_0_24px_rgba(0,0,0,0.2)]">
           <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] flex justify-between items-center shrink-0">
             <span>INSPECTOR</span><Menu size={14}/>
           </div>
@@ -77,29 +95,14 @@ export default function Home() {
           </div>
           
           <div className="p-4 pb-10 border-t border-[#333] shrink-0 bg-[#202021]">
-             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.0</div>
+             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v4.1</div>
              <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
           </div>
         </aside>
 
-        {/* 右侧工作区 (包含 Logo 和 编辑器) */}
+        {/* 右侧工作区 (干净的深色背景，无水印干扰) */}
         <section className="flex-1 bg-[#181818] relative overflow-hidden flex flex-col">
-          
-          {/* Layer 0: 背景 Logo (绝对居中 + 模糊处理) */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
-             {/* eslint-disable-next-line @next/next/no-img-element */}
-             <img 
-               src="/logo.jpg" 
-               alt="Background Watermark" 
-               className="w-[500px] h-[500px] object-contain opacity-[0.06] blur-[3px] grayscale contrast-125"
-             />
-          </div>
-
-          {/* Layer 1: 编辑器内容 (位于 Logo 之上) */}
-          <div className="relative z-10 flex-1 flex flex-col w-full h-full">
-            <ScoreStudio format={format} audioFile={audioFile} apiKey={apiKey} />
-          </div>
-
+          <ScoreStudio format={format} audioFile={audioFile} apiKey={apiKey} />
         </section>
       </div>
     </main>
