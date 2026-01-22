@@ -27,7 +27,7 @@ export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Pro
         waveColor: '#5a5a5a',      // 轨道底色
         progressColor: '#3b82f6',  // 播放进度蓝
         cursorColor: '#ffffff',
-        barWidth: 0,               // 实心波形模式 (不分条)
+        barWidth: 0,               // 实心波形模式
         height: 120,               // 高度增加
         normalize: true,
         fillParent: true,
@@ -42,14 +42,15 @@ export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Pro
 
   const togglePlay = () => { if (wavesurfer.current) { wavesurfer.current.playPause(); setIsPlaying(!isPlaying); }};
 
-  // OSMD 初始化
+  // OSMD 初始化 (已修复 TS 报错)
   useEffect(() => {
     if (sheetRef.current && !osmdRef.current) {
       try {
         osmdRef.current = new OpenSheetMusicDisplay(sheetRef.current, {
           autoResize: true, backend: "svg", drawingParameters: "compacttight", darkMode: true,
         });
-        osmdRef.current.setOptions({ defaultColorMusic: "#ccc", defaultColorLabel: "#ccc", backgroundColor: "#1e1e1e" });
+        // 【关键修复】删除了 backgroundColor，只保留合法的颜色设置
+        osmdRef.current.setOptions({ defaultColorMusic: "#ccc", defaultColorLabel: "#ccc" });
       } catch(e){}
     }
   }, []);
@@ -88,15 +89,12 @@ export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Pro
             {status === 'analyzing' && <span className="text-yellow-500 animate-pulse">ANALYZING...</span>}
          </div>
          
-         {/* 波形容器 */}
          <div className="flex-1 relative mt-4 bg-[#111] rounded border border-[#333] overflow-hidden" ref={waveformRef}>
-            {/* 网格线背景 (纯 CSS 模拟) */}
             <div className="absolute inset-0 pointer-events-none opacity-20" 
                  style={{backgroundImage: 'linear-gradient(90deg, #444 1px, transparent 1px)', backgroundSize: '100px 100%'}}></div>
             {!audioFile && <div className="absolute inset-0 flex items-center justify-center text-gray-700 text-xs tracking-widest">NO AUDIO EVENT</div>}
          </div>
 
-         {/* 悬浮控制按钮 */}
          {audioFile && (
            <button onClick={togglePlay} className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg z-20">
              {isPlaying ? <Pause size={16}/> : <Play size={16}/>}
@@ -106,7 +104,6 @@ export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Pro
 
       {/* 底部：乐谱编辑区 */}
       <div className="flex-1 bg-[#222] overflow-auto p-8 relative flex justify-center">
-         {/* 工具条 */}
          <div className="absolute top-4 right-4 flex gap-2 z-10">
             <button onClick={startGeneration} disabled={status === 'analyzing'} className="bg-[#333] hover:bg-[#444] border border-[#555] text-gray-200 px-3 py-1 rounded text-xs font-bold flex items-center gap-2">
               <Cpu size={12}/> {status === 'analyzing' ? 'Processing...' : 'DeepSeek Transform'}
@@ -114,7 +111,6 @@ export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Pro
             {status === 'ready' && <button onClick={exportImg} className="bg-[#333] hover:bg-[#444] border border-[#555] text-gray-200 px-3 py-1 rounded text-xs"><Download size={12}/></button>}
          </div>
 
-         {/* 乐谱画布 */}
          <div ref={sheetRef} className={`w-full max-w-5xl transition-opacity duration-300 ${status === 'ready' ? 'opacity-100' : 'opacity-50 blur-[1px]'}`} />
          
          {status === 'idle' && !audioFile && (
