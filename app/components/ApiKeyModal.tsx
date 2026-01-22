@@ -15,13 +15,11 @@ export default function ApiKeyModal({ isOpen, onClose, onSave, storedKey }: Prop
 
   useEffect(() => setKey(storedKey), [storedKey]);
 
-  // 关键修复：当窗口打开时，延迟 100ms 强制聚焦，并选中文字
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
-          inputRef.current.select();
         }
       }, 100);
     }
@@ -49,15 +47,20 @@ export default function ApiKeyModal({ isOpen, onClose, onSave, storedKey }: Prop
         <div className="p-8">
           <label className="block text-sm text-gray-300 mb-3 font-medium">DeepSeek API Key</label>
           
+          {/* 修复点：
+             1. bg-black: 纯黑背景
+             2. text-white: 纯白文字
+             3. style={{ color: 'white' }}: 强制覆盖
+          */}
           <input
             ref={inputRef}
-            type="password"
+            type="text" 
             value={key}
             onChange={(e) => setKey(e.target.value)}
             onKeyDown={(e) => e.stopPropagation()} 
             placeholder="sk-..."
-            // 关键修复：caret-blue-500 (蓝光标), text-white (白字), !select-text (强制允许选中)
-            className="w-full h-12 bg-[#1e1e1e] border border-[#444] text-white caret-blue-500 px-4 rounded-lg text-base font-mono mb-6 focus:border-blue-500 focus:outline-none !select-text"
+            style={{ color: '#ffffff', backgroundColor: '#000000' }}
+            className="w-full h-12 border border-[#555] px-4 rounded-lg text-lg font-mono mb-6 focus:border-blue-500 focus:outline-none !select-text placeholder-gray-600"
           />
 
           <div className="flex gap-4">

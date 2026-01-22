@@ -25,7 +25,8 @@ export default function Home() {
     <main className="flex flex-col h-screen w-full bg-[#1e1e1e] text-[#e5e5e5] overflow-hidden select-none">
       <ApiKeyModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} storedKey={apiKey} onSave={setApiKey} />
 
-      <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-6 justify-between shrink-0 shadow-md z-40">
+      {/* 顶部 Header (固定高度 flex-none) */}
+      <header className="h-14 bg-[#252526] border-b border-[#333] flex items-center px-6 justify-between shrink-0 shadow-md z-40 flex-none">
         <div className="flex items-center gap-8">
           <div className="font-bold text-lg text-white flex items-center gap-3 tracking-wide">
             <div className="w-4 h-4 bg-blue-600 rounded"></div> 
@@ -37,15 +38,19 @@ export default function Home() {
         </button>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* 侧边栏：使用 flex flex-col 布局 */}
+      {/* 主体区域 (占据剩余高度) */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        
+        {/* 侧边栏 (flex flex-col h-full) */}
         <aside className="w-72 bg-[#202021] border-r border-[#333] flex flex-col shrink-0 z-30 h-full">
+          
+          {/* 1. 标题 (固定高度) */}
           <div className="p-3 bg-[#2d2d2d] text-xs font-bold text-gray-300 border-b border-[#333] flex justify-between items-center shrink-0">
             <span>INSPECTOR</span><Menu size={14}/>
           </div>
           
-          {/* 内容区域：flex-1 让它占据剩余空间 */}
-          <div className="p-5 flex-1 overflow-y-auto space-y-8">
+          {/* 2. 可滚动内容区 (关键：flex-1 + min-h-0 + overflow-y-auto) */}
+          <div className="p-5 flex-1 overflow-y-auto min-h-0 space-y-8">
              <div>
                <h3 className="text-xs text-blue-400 font-bold mb-3 uppercase flex items-center gap-2"><Music size={14}/> Audio Source</h3>
                <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
@@ -74,9 +79,9 @@ export default function Home() {
              </div>
           </div>
           
-          {/* 底部版权：这里不需要 mt-auto，因为父容器是 flex-col 且中间层是 flex-1，这里自然会被挤到底部 */}
-          <div className="p-4 border-t border-[#333] shrink-0 bg-[#202021]">
-             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v3.4</div>
+          {/* 3. 底部版权 (固定高度 + 底部Padding防止贴边) */}
+          <div className="p-4 pb-8 border-t border-[#333] shrink-0 bg-[#202021]">
+             <div className="text-xs font-bold text-gray-400 mb-1">TIANSUAN ENGINE v3.7</div>
              <div className="text-[10px] text-gray-600 font-mono">Powered by DeepSeek V3</div>
           </div>
         </aside>
