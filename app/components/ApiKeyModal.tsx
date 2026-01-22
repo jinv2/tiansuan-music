@@ -18,9 +18,7 @@ export default function ApiKeyModal({ isOpen, onClose, onSave, storedKey }: Prop
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
+        if (inputRef.current) inputRef.current.focus();
       }, 100);
     }
   }, [isOpen]);
@@ -32,26 +30,21 @@ export default function ApiKeyModal({ isOpen, onClose, onSave, storedKey }: Prop
       style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 2147483647, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={onClose}
     >
+      {/* 核心修改：w-[90%] max-w-[500px] 适配手机和电脑 */}
       <div 
         onClick={(e) => e.stopPropagation()} 
-        className="w-[500px] bg-[#252526] border border-[#555] shadow-2xl rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="w-[90%] max-w-[500px] bg-[#252526] border border-[#555] shadow-2xl rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
       >
-        <div className="bg-[#333] px-6 py-4 border-b border-[#444] flex justify-between items-center">
-          <h2 className="text-lg font-bold text-white flex items-center gap-3">
+        <div className="bg-[#333] px-4 py-3 md:px-6 md:py-4 border-b border-[#444] flex justify-between items-center">
+          <h2 className="text-base md:text-lg font-bold text-white flex items-center gap-2 md:gap-3">
             <Zap className="text-blue-500" size={20} fill="currentColor" />
-            DeepSeek 引擎配置
+            <span className="truncate">DeepSeek Config</span>
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={20}/></button>
         </div>
 
-        <div className="p-8">
+        <div className="p-6 md:p-8">
           <label className="block text-sm text-gray-300 mb-3 font-medium">DeepSeek API Key</label>
-          
-          {/* 修复点：
-             1. bg-black: 纯黑背景
-             2. text-white: 纯白文字
-             3. style={{ color: 'white' }}: 强制覆盖
-          */}
           <input
             ref={inputRef}
             type="text" 
@@ -60,9 +53,8 @@ export default function ApiKeyModal({ isOpen, onClose, onSave, storedKey }: Prop
             onKeyDown={(e) => e.stopPropagation()} 
             placeholder="sk-..."
             style={{ color: '#ffffff', backgroundColor: '#000000' }}
-            className="w-full h-12 border border-[#555] px-4 rounded-lg text-lg font-mono mb-6 focus:border-blue-500 focus:outline-none !select-text placeholder-gray-600"
+            className="w-full h-12 border border-[#555] px-4 rounded-lg text-base font-mono mb-6 focus:border-blue-500 focus:outline-none !select-text placeholder-gray-600"
           />
-
           <div className="flex gap-4">
             <button onClick={onClose} className="flex-1 h-12 rounded-lg border border-[#444] text-gray-300 font-bold hover:bg-[#333]">取消</button>
             <button onClick={() => { onSave(key); onClose(); }} className="flex-1 h-12 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold flex items-center justify-center gap-2">
