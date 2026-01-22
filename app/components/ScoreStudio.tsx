@@ -2,160 +2,127 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
-import { Play, Pause, Download, Cpu, AlertTriangle, Terminal } from 'lucide-react';
+import { Play, Pause, Download, Cpu, Activity } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
-interface Props {
-  format?: string;
-  audioFile?: File | null;
-  apiKey: string;
-}
+interface Props { format?: string; audioFile?: File | null; apiKey: string; }
 
 export default function ScoreStudio({ format = 'staff', audioFile, apiKey }: Props) {
   const [status, setStatus] = useState<'idle' | 'analyzing' | 'ready' | 'error'>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
-  
   const sheetRef = useRef<HTMLDivElement>(null);
   const waveformRef = useRef<HTMLDivElement>(null);
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null);
   const wavesurfer = useRef<any>(null);
 
-  // 初始化 WaveSurfer
+  // 初始化 WaveSurfer - 仿 Cubase 样式
   useEffect(() => {
-    const initWaveSurfer = async () => {
+    const initWS = async () => {
       if (!waveformRef.current || !audioFile) return;
       const WaveSurfer = (await import('wavesurfer.js')).default;
       if (wavesurfer.current) wavesurfer.current.destroy();
+      
       wavesurfer.current = WaveSurfer.create({
         container: waveformRef.current,
-        waveColor: '#52525b', progressColor: '#06b6d4', cursorColor: '#fff',
-        barWidth: 2, barGap: 2, height: 40, normalize: true,
+        waveColor: '#5a5a5a',      // 轨道底色
+        progressColor: '#3b82f6',  // 播放进度蓝
+        cursorColor: '#ffffff',
+        barWidth: 0,               // 实心波形模式 (不分条)
+        height: 120,               // 高度增加
+        normalize: true,
+        fillParent: true,
+        minPxPerSec: 50,
       });
       wavesurfer.current.load(URL.createObjectURL(audioFile));
       wavesurfer.current.on('finish', () => setIsPlaying(false));
     };
-    initWaveSurfer();
+    initWS();
     return () => { if (wavesurfer.current) wavesurfer.current.destroy(); };
   }, [audioFile]);
 
   const togglePlay = () => { if (wavesurfer.current) { wavesurfer.current.playPause(); setIsPlaying(!isPlaying); }};
 
-  // 初始化 OSMD (已修复 TypeScript 报错)
+  // OSMD 初始化
   useEffect(() => {
     if (sheetRef.current && !osmdRef.current) {
       try {
         osmdRef.current = new OpenSheetMusicDisplay(sheetRef.current, {
           autoResize: true, backend: "svg", drawingParameters: "compacttight", darkMode: true,
         });
-        // 【关键修复】移除了报错的 backgroundColor，保留音符颜色设置
-        osmdRef.current.setOptions({ 
-          defaultColorMusic: "#FFFFFF", 
-          defaultColorLabel: "#FFFFFF" 
-        });
-      } catch (e) { console.error(e); }
+        osmdRef.current.setOptions({ defaultColorMusic: "#ccc", defaultColorLabel: "#ccc", backgroundColor: "#1e1e1e" });
+      } catch(e){}
     }
   }, []);
 
-  // 核心：真实调用 API 生成乐谱
-  const startRealGeneration = async () => {
-    if (!apiKey) {
-      alert("请先点击右上角配置您的 DeepSeek API Key");
-      return;
-    }
-    
+  // 真实 API 调用
+  const startGeneration = async () => {
+    if (!apiKey) { alert("Please Configure API Key in Header"); return; }
     setStatus('analyzing');
-    setErrorMsg('');
-
     try {
-      const promptText = audioFile 
-        ? `Generate a transcription for a song titled "${audioFile.name}". It sounds like a melancholic piano piece in A Minor.` 
-        : `Generate a complex orchestral idea in C Minor with rapid strings and heavy brass.`;
-
-      const response = await fetch('/api/conduct', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          apiKey, 
-          prompt: promptText 
-        })
+      const prompt = audioFile ? `Transcribe "${audioFile.name}" to MusicXML.` : "Generate demo XML.";
+      const res = await fetch('/api/conduct', {
+        method: 'POST', body: JSON.stringify({ apiKey, prompt }), headers: { 'Content-Type': 'application/json'}
       });
-
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.error || 'Failed to contact AI');
-
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       if (format === 'staff' && osmdRef.current) {
-        osmdRef.current.clear();
-        await osmdRef.current.load(data.result);
-        osmdRef.current.render();
+        osmdRef.current.clear(); await osmdRef.current.load(data.result); osmdRef.current.render();
       }
-      
       setStatus('ready');
-
-    } catch (err: any) {
-      console.error(err);
-      setStatus('error');
-      setErrorMsg(err.message);
-    }
+    } catch (e) { setStatus('error'); console.error(e); }
   };
 
-  const handleExport = async () => {
-    if (sheetRef.current) {
-      const canvas = await html2canvas(sheetRef.current, { backgroundColor: '#000000', scale: 2 });
-      const link = document.createElement('a');
-      link.download = `TianSuan_AI_Score.jpg`;
-      link.href = canvas.toDataURL('image/jpeg');
-      link.click();
+  const exportImg = async () => {
+    if(sheetRef.current) {
+       const c = await html2canvas(sheetRef.current, {backgroundColor:'#1e1e1e'});
+       const l = document.createElement('a'); l.download='score.jpg'; l.href=c.toDataURL(); l.click();
     }
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-6 gap-6">
-      <div className="h-24 w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex items-center justify-between backdrop-blur">
-         <div className="flex-1 mr-8">
-           {audioFile ? (
-             <div className="flex items-center gap-4">
-               <button onClick={togglePlay} className="w-10 h-10 rounded-full bg-cyan-600 flex items-center justify-center hover:bg-cyan-500 transition">
-                 {isPlaying ? <Pause size={16} fill="white"/> : <Play size={16} fill="white"/>}
-               </button>
-               <div className="flex-1 h-10" ref={waveformRef}></div>
-             </div>
-           ) : (
-             <div className="text-zinc-600 font-mono text-xs">Waiting for audio source...</div>
-           )}
+    <div className="w-full h-full flex flex-col">
+      {/* 顶部：波形轨道区域 */}
+      <div className="h-40 bg-[#1a1a1a] border-b border-[#333] relative p-2 flex flex-col group">
+         <div className="absolute top-2 left-2 text-[10px] font-bold text-gray-500 z-10 flex gap-2">
+            <span className="bg-[#333] px-1 rounded text-blue-400">Audio 01</span>
+            {status === 'analyzing' && <span className="text-yellow-500 animate-pulse">ANALYZING...</span>}
+         </div>
+         
+         {/* 波形容器 */}
+         <div className="flex-1 relative mt-4 bg-[#111] rounded border border-[#333] overflow-hidden" ref={waveformRef}>
+            {/* 网格线背景 (纯 CSS 模拟) */}
+            <div className="absolute inset-0 pointer-events-none opacity-20" 
+                 style={{backgroundImage: 'linear-gradient(90deg, #444 1px, transparent 1px)', backgroundSize: '100px 100%'}}></div>
+            {!audioFile && <div className="absolute inset-0 flex items-center justify-center text-gray-700 text-xs tracking-widest">NO AUDIO EVENT</div>}
          </div>
 
-         <button 
-           onClick={startRealGeneration}
-           disabled={status === 'analyzing'}
-           className={`px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2
-           ${status === 'analyzing' ? 'bg-zinc-800 text-zinc-500' : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:shadow-[0_0_20px_cyan]'}`}
-         >
-           {status === 'analyzing' ? <Cpu className="animate-spin" size={16}/> : <Terminal size={16}/>}
-           {status === 'analyzing' ? 'DEEPSEEKING...' : 'GENERATE SCORE'}
-         </button>
+         {/* 悬浮控制按钮 */}
+         {audioFile && (
+           <button onClick={togglePlay} className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg z-20">
+             {isPlaying ? <Pause size={16}/> : <Play size={16}/>}
+           </button>
+         )}
       </div>
 
-      <div className="flex-1 bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden relative flex flex-col items-center justify-center p-8">
-        {status === 'error' && (
-          <div className="text-red-500 font-mono text-sm flex flex-col items-center gap-2">
-            <AlertTriangle size={32}/>
-            <p>ERROR: {errorMsg}</p>
-            <p className="text-xs text-zinc-600">Please check your DeepSeek API Key.</p>
-          </div>
-        )}
+      {/* 底部：乐谱编辑区 */}
+      <div className="flex-1 bg-[#222] overflow-auto p-8 relative flex justify-center">
+         {/* 工具条 */}
+         <div className="absolute top-4 right-4 flex gap-2 z-10">
+            <button onClick={startGeneration} disabled={status === 'analyzing'} className="bg-[#333] hover:bg-[#444] border border-[#555] text-gray-200 px-3 py-1 rounded text-xs font-bold flex items-center gap-2">
+              <Cpu size={12}/> {status === 'analyzing' ? 'Processing...' : 'DeepSeek Transform'}
+            </button>
+            {status === 'ready' && <button onClick={exportImg} className="bg-[#333] hover:bg-[#444] border border-[#555] text-gray-200 px-3 py-1 rounded text-xs"><Download size={12}/></button>}
+         </div>
 
-        <div 
-          ref={sheetRef} 
-          className={`w-full max-w-5xl h-full transition-opacity duration-500 ${status === 'ready' ? 'opacity-100' : 'opacity-0 hidden'}`}
-        />
-        
-        {status === 'idle' && (
-          <div className="text-zinc-800 font-bold text-4xl uppercase tracking-tighter select-none">
-            DEEPSEEK V3 AGENT
-          </div>
-        )}
+         {/* 乐谱画布 */}
+         <div ref={sheetRef} className={`w-full max-w-5xl transition-opacity duration-300 ${status === 'ready' ? 'opacity-100' : 'opacity-50 blur-[1px]'}`} />
+         
+         {status === 'idle' && !audioFile && (
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600 flex flex-col items-center">
+             <Activity size={48} className="mb-4 opacity-20"/>
+             <span className="text-xs tracking-[0.5em] uppercase">Empty Project</span>
+           </div>
+         )}
       </div>
     </div>
   );

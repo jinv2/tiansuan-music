@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Key, Eye, EyeOff, ShieldCheck, Zap } from 'lucide-react';
+import { Key, ShieldCheck, X } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -11,47 +11,44 @@ interface Props {
 
 export default function ApiKeyModal({ isOpen, onClose, onSave, storedKey }: Props) {
   const [key, setKey] = useState(storedKey);
-  const [show, setShow] = useState(false);
 
   useEffect(() => setKey(storedKey), [storedKey]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-zinc-900 border border-blue-500/30 rounded-2xl w-full max-w-md p-6 shadow-[0_0_50px_rgba(59,130,246,0.2)] relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600 to-transparent"></div>
+    // z-[9999] 确保在最顶层，bg-black/80 提供遮罩
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-[2px]">
+      <div className="bg-[#2b2b2b] border border-[#444] rounded shadow-2xl w-[400px] flex flex-col overflow-hidden">
+        {/* 标题栏 */}
+        <div className="bg-[#333] px-4 py-2 border-b border-[#444] flex justify-between items-center">
+          <span className="font-bold text-xs uppercase tracking-wider text-gray-300 flex items-center gap-2">
+            <Key size={12} /> DeepSeek API Configuration
+          </span>
+          <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={14}/></button>
+        </div>
 
-        <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-          <Zap className="text-blue-500" size={20} fill="currentColor"/>
-          DeepSeek Authentication
-        </h2>
-        <p className="text-xs text-zinc-400 mb-6 font-mono leading-relaxed">
-          请输入您的 <strong>DeepSeek API Key</strong> (sk-...)。<br/>
-          系统将直连 api.deepseek.com 进行推理。
-        </p>
+        {/* 内容区 */}
+        <div className="p-6 flex flex-col gap-4">
+          <p className="text-xs text-gray-400 leading-relaxed">
+            Authentication Required for V3 Inference Engine.
+            <br/>Connecting to: <span className="font-mono text-blue-400">api.deepseek.com</span>
+          </p>
 
-        <div className="space-y-4">
-          <div className="relative">
-            <input
-              type={show ? "text" : "password"}
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="sk-..."
-              className="w-full bg-black border border-zinc-700 text-white px-4 py-3 rounded-xl focus:border-blue-500 focus:outline-none font-mono text-sm pr-12"
-            />
-            <button onClick={() => setShow(!show)} className="absolute right-3 top-3 text-zinc-500 hover:text-white">
-              {show ? <EyeOff size={16}/> : <Eye size={16}/>}
-            </button>
-          </div>
+          <input
+            type="password"
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+            placeholder="sk-..."
+            className="w-full bg-[#1a1a1a] border border-[#3f3f3f] text-white px-3 py-2 rounded text-xs font-mono focus:border-blue-500 focus:outline-none"
+          />
 
-          <div className="flex gap-3 pt-2">
-            <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-zinc-700 text-zinc-400 hover:bg-zinc-800 text-xs font-bold transition">CANCEL</button>
-            <button onClick={() => { onSave(key); onClose(); }} className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2">
-              <ShieldCheck size={16}/>
-              CONNECT
-            </button>
-          </div>
+          <button 
+            onClick={() => { onSave(key); onClose(); }}
+            className="w-full py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs font-bold rounded flex items-center justify-center gap-2 transition-colors"
+          >
+            <ShieldCheck size={14}/> CONNECT ENGINE
+          </button>
         </div>
       </div>
     </div>
